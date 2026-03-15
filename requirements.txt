@@ -1,1 +1,5 @@
-fastapi uvicorn streamlit pandas numpy openpyxl sqlalchemy python-multipart requests langchain langchain-openai langgraph python-dotenv
+streamlit==1.28.0
+pandas==2.0.3
+numpy==1.24.3
+openpyxl==3.1.2
+sqlalchemy==2.0.20
