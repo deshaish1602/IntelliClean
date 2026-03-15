@@ -61,7 +61,7 @@ Components include:
 ---
 
 ## Project Structure
-
+```
 IntelliClean/
 │
 ├── app/
@@ -83,6 +83,7 @@ IntelliClean/
 └── README.md
 
 ---
+```
 
 ## How to Run
 
