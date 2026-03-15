@@ -1,70 +1,72 @@
 import streamlit as st
-import requests
 import pandas as pd
+import sys
+import os
 
-API_URL = "http://localhost:8000"
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from app.data_cleaning import DataCleaning
 
 st.set_page_config(page_title="IntelliClean", page_icon="🧹", layout="wide")
 st.title("🧹 IntelliClean — AI Data Cleaning Pipeline")
 st.markdown("Upload your messy dataset and get it cleaned instantly.")
 
-tab1, tab2 = st.tabs(["Upload File", "Query Database"])
+cleaner = DataCleaning()
+
+tab1, tab2 = st.tabs(["Upload File", "About"])
 
 with tab1:
     uploaded_file = st.file_uploader("Upload CSV or Excel file", type=["csv", "xlsx"])
     if uploaded_file:
-        st.subheader("Raw data preview")
+        st.subheader("Raw data")
         if uploaded_file.name.endswith(".csv"):
             df = pd.read_csv(uploaded_file)
         else:
             df = pd.read_excel(uploaded_file)
 
-        st.info(f"Total rows in uploaded file: {len(df)}")
+        st.info(f"Total rows: {len(df)} | Total columns: {len(df.columns)}")
         st.dataframe(df, use_container_width=True)
 
         if st.button("Clean this data"):
-            uploaded_file.seek(0)
-            with st.spinner("Cleaning..."):
-                response = requests.post(
-                    f"{API_URL}/clean/upload",
-                    files={"file": (uploaded_file.name, uploaded_file, "multipart/form-data")}
-                )
-            if response.status_code == 200:
-                result = response.json()
-                st.success(f"Cleaned! {result['original_rows']} → {result['cleaned_rows']} rows")
+            with st.spinner("Cleaning your data..."):
+                df_cleaned = cleaner.clean(df)
 
-                cleaned_df = pd.DataFrame(result["preview"])
+            st.success(f"Done! {len(df)} rows → {len(df_cleaned)} rows after cleaning")
+            st.subheader("Cleaned data")
+            st.dataframe(df_cleaned, use_container_width=True)
 
-                st.subheader(f"Cleaned data — {len(cleaned_df)} rows")
-                st.dataframe(cleaned_df, use_container_width=True)
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("Original rows", len(df))
+                st.metric("Original columns", len(df.columns))
+            with col2:
+                st.metric("Cleaned rows", len(df_cleaned))
+                st.metric("Duplicates removed", len(df) - len(df_cleaned))
 
-                csv = cleaned_df.to_csv(index=False)
-                st.download_button(
-                    label="Download complete cleaned CSV",
-                    data=csv,
-                    file_name="intelliclean_cleaned.csv",
-                    mime="text/csv"
-                )
-            else:
-                st.error(f"Error: {response.text}")
-
-with tab2:
-    query = st.text_input("SQL Query", value="SELECT * FROM cleaned_data")
-    if st.button("Run Query"):
-        with st.spinner("Fetching..."):
-            response = requests.get(f"{API_URL}/clean/db", params={"query": query})
-        if response.status_code == 200:
-            result = response.json()
-            cleaned_df = pd.DataFrame(result["preview"])
-            st.success(f"{result['rows']} rows returned")
-            st.dataframe(cleaned_df, use_container_width=True)
-
-            csv = cleaned_df.to_csv(index=False)
+            csv = df_cleaned.to_csv(index=False)
             st.download_button(
-                label="Download complete cleaned CSV",
+                label="Download cleaned CSV",
                 data=csv,
                 file_name="intelliclean_cleaned.csv",
                 mime="text/csv"
             )
-        else:
-            st.error(f"Error: {response.text}")
+
+with tab2:
+    st.subheader("About IntelliClean")
+    st.markdown("""
+    ### What this app does
+    - Handles missing values automatically
+    - Removes duplicate rows
+    - Fixes data types
+    - Works with CSV and Excel files
+
+    ### How missing values are handled
+    - **Numeric columns** → filled with mean value
+    - **Text columns** → filled with most common value
+
+    ### Tech Stack
+    - Python
+    - Streamlit
+    - Pandas
+    - SQLAlchemy
+    """)
