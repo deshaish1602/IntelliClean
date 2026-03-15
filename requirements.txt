@@ -1,0 +1,1 @@
+fastapi uvicorn streamlit pandas numpy openpyxl sqlalchemy python-multipart requests langchain langchain-openai langgraph python-dotenv

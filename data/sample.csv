@@ -1,0 +1,7 @@
+name,age,salary,city
+Alice,25,50000,New York
+Bob,,60000,
+Charlie,30,,Chicago
+Alice,25,50000,New York
+David,22,45000,Houston
+,28,55000,Phoenix
