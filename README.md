@@ -5,6 +5,7 @@ IntelliClean is an end-to-end automated data cleaning system that combines rule-
 The system is designed to simulate a real-world data engineering workflow where raw data from CSV/Excel files is automatically cleaned, validated, and prepared for analytics or machine learning pipelines.
 
 ---
+Live Demo: https://intelliclean-8sevflw6vd2ssyvguknbr5.streamlit.app
 
 ## Key Features
 
